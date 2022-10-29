@@ -31,14 +31,12 @@ for m, n in matches:
 
 if len(good) > MIN_MATCH_COUNT:
     # Estimate homography between template and scene
-    print('Estimate Homography')
     src_pts = np.float32([ kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
     dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
 
     M = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)[0]
 
     # Draw detected template in scene image
-    print('Draw Template in Scene Image')
     h, w = img1.shape
     pts = np.float32([[0, 0],
                       [0, h - 1],
@@ -60,7 +58,6 @@ if len(good) > MIN_MATCH_COUNT:
         newimg[:h2, w1:w1 + w2, i] = img2
 
     # Draw SIFT keypoint matches
-    print('Draw SIFT keypoint matches')
     for m in good:
         pt1 = (int(kp1[m.queryIdx].pt[0]), int(kp1[m.queryIdx].pt[1] + hdif))
         pt2 = (int(kp2[m.trainIdx].pt[0] + w1), int(kp2[m.trainIdx].pt[1]))
