@@ -6,9 +6,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 MIN_MATCH_COUNT = 10
+img1_bgr = cv2.imread('book.jpg')
+img2_bgr = cv2.imread('book_in_scene3.jpg')
+img1_ycc = cv2.cvtColor(img1_bgr, cv2.COLOR_BGR2YCR_CB)
+img2_ycc = cv2.cvtColor(img2_bgr, cv2.COLOR_BGR2YCR_CB)
+img1_ycc = cv2.cvtColor(img1_bgr, cv2.COLOR_BGR2YCR_CB)
+img2_ycc = cv2.cvtColor(img2_bgr, cv2.COLOR_BGR2YCR_CB)
 
-img1 = cv2.imread('box.png', 0)           # queryImage
-img2 = cv2.imread('box_in_scene.png', 0)  # trainImage
+# img1 = cv2.imread('book.jpg', 0)           # queryImage
+# img2 = cv2.imread('book_in_scene3.jpg', 0)  # trainImage
 
 # Compute SIFT keypoints and descriptors
 print('Start: Compute SIFT keypoints and descriptors')
@@ -28,7 +34,7 @@ good = []
 for m, n in matches:
     if m.distance < 0.7 * n.distance:
         good.append(m)
-
+print(len(good))
 if len(good) > MIN_MATCH_COUNT:
     # Estimate homography between template and scene
     src_pts = np.float32([ kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
@@ -44,7 +50,7 @@ if len(good) > MIN_MATCH_COUNT:
                       [w - 1, 0]]).reshape(-1, 1, 2)
     dst = cv2.perspectiveTransform(pts, M)
 
-    img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+    img2 = cv2.polylines(img2, [np.int32(dst)], True, 0, 3, cv2.LINE_AA)
 
     h1, w1 = img1.shape
     h2, w2 = img2.shape
@@ -52,7 +58,9 @@ if len(good) > MIN_MATCH_COUNT:
     nHeight = max(h1, h2)
     hdif = int((h2 - h1) / 2)
     newimg = np.zeros((nHeight, nWidth, 3), np.uint8)
-
+    print(hdif)
+    print(img1.shape)
+    print(img2.shape)
     for i in range(3):
         newimg[hdif:hdif + h1, :w1, i] = img1
         newimg[:h2, w1:w1 + w2, i] = img2
