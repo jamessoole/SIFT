@@ -3,18 +3,37 @@ import cv2
 import pysift
 from matplotlib import pyplot as plt
 import logging
+from PIL import Image
 logger = logging.getLogger(__name__)
 
-MIN_MATCH_COUNT = 10
-img1_bgr = cv2.imread('book.jpg')
-img2_bgr = cv2.imread('book_in_scene3.jpg')
+MIN_MATCH_COUNT = 0
+img1_bgr = cv2.imread('data/books/book.jpg')
+img2_bgr = cv2.imread('data/books/book_in_scene2.jpg')
 img1_ycc = cv2.cvtColor(img1_bgr, cv2.COLOR_BGR2YCR_CB)
 img2_ycc = cv2.cvtColor(img2_bgr, cv2.COLOR_BGR2YCR_CB)
-img1_ycc = cv2.cvtColor(img1_bgr, cv2.COLOR_BGR2YCR_CB)
-img2_ycc = cv2.cvtColor(img2_bgr, cv2.COLOR_BGR2YCR_CB)
+img1_ycc = np.asarray(img1_ycc)
+img2_ycc = np.asarray(img2_ycc)
+k = 3
+alpha = .5
+yc_1 = k * np.sign(np.mean(img1_ycc[:,:,1]) - np.mean(img1_ycc[:,:,2])) * np.sign(img1_ycc[:,:,1] - img1_ycc[:,:,2]) * np.abs(img1_ycc[:,:,1] - img1_ycc[:,:,2]) ** alpha
+yc_2 = k * np.sign(np.mean(img2_ycc[:,:,1]) - np.mean(img2_ycc[:,:,2])) * np.sign(img2_ycc[:,:,1] - img2_ycc[:,:,2]) * np.abs(img2_ycc[:,:,1] - img2_ycc[:,:,2]) ** alpha
+p_1 = img1_ycc[:,:,0] + yc_1
+p_2 = img2_ycc[:,:,0] + yc_2
+ye_1 = (128-np.mean(p_1))*np.exp((-((np.linalg.norm(p_1)) - .5) ** 2)/(2*.2**2))
+ye_2 = (128-np.mean(p_2))*np.exp((-((np.linalg.norm(p_2)) - .5) ** 2)/(2*.2**2))
+img1 = img1_ycc[:,:,0] + yc_1 + ye_1
+img2 = img2_ycc[:,:,0] + yc_2 + ye_2
+# img1 = Image.fromarray((img1).astype(np.uint8))
+# img2 = Image.fromarray((img2).astype(np.uint8))
+# img1.save('testbooks1.png')
+# img2.save('testbooks2.png')
+# img1 = cv2.imread('data/books/book.jpg', 0)           # queryImage
+# img2 = cv2.imread('data/books/book_in_scene2.jpg', 0)  # trainImage
+# img1 = Image.fromarray((img1).astype(np.uint8))
+# img1.save('testbooks1org.png')
 
-# img1 = cv2.imread('book.jpg', 0)           # queryImage
-# img2 = cv2.imread('book_in_scene3.jpg', 0)  # trainImage
+if img1.shape[0] >= img2.shape[0] or img1.shape[1] >= img2.shape[1]:
+    img1 = cv2.resize(img1, (0,0), fx=0.5, fy=0.5)
 
 # Compute SIFT keypoints and descriptors
 print('Start: Compute SIFT keypoints and descriptors')
