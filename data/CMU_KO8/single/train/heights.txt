@@ -1,0 +1,8 @@
+bakingpan 14
+colander 11
+cup 12
+pitcher 18
+saucepan 15
+scissors 5
+shaker 12
+thermos 20
